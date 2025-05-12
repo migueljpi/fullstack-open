@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react'
 import axios from 'axios'
 import phoneService from './services/phones'
 import Notification from './components/Notification'
+import Error from './components/Error'
 import './components/notification.css'
 
 const App = () => {
@@ -14,7 +15,8 @@ const App = () => {
   const [newName, setNewName] = useState('')
   const [newNumber, setNewNumber] = useState('')
   const [filter, setFilter] = useState('')
-  const [message, setMessage] = useState('')
+  const [message, setMessage] = useState(null)
+  const [error, setError] = useState(null)
 
   useEffect(() => {
     console.log('adding to the phonebook from db.json')
@@ -42,14 +44,25 @@ const App = () => {
             setPersons(persons.map(person => person.id !== existingPerson.id ? person : returnedPerson));
             setNewName('');
             setNewNumber('');
+            setMessage(
+                `${existingPerson.name} number was updated to ${newNumber}`
+              )
+              setTimeout(() => {
+                setMessage(null)
+              }, 5000)
+          })
+          .catch(error => {
+            setPersons(persons.filter(person => person.id !== existingPerson.id));
+            setNewName('');
+            setNewNumber('');
+            setError(
+                `Information of ${existingPerson.name} has already been removed from server`
+              )
+              setTimeout(() => {
+                setError(null)
+              }, 5000)
           })
       }
-      setMessage(
-          `${existingPerson.name} number was updated to ${newNumber}`
-        )
-        setTimeout(() => {
-          setMessage(null)
-        }, 5000)
       return;
     }
 
@@ -100,7 +113,8 @@ const App = () => {
   return (
     <div>
       <h2>Phonebook</h2>
-      {message !== '' && <Notification message={message} />}
+      <Notification message={message} />
+      <Error message={error} />
       <Filter filter={filter} setFilter={setFilter} />
       <h3>add a new</h3>
       <NewEntry newName={newName} setNewName={setNewName} newNumber={newNumber} setNewNumber={setNewNumber} addEntry={addEntry} />
