@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react'
 import axios from 'axios'
+import phoneService from './services/phones'
 
 const App = () => {
   const [persons, setPersons] = useState([
@@ -14,11 +15,10 @@ const App = () => {
 
   useEffect(() => {
     console.log('adding to the phonebook from db.json')
-    axios
-      .get('http://localhost:3001/persons')
-      .then(response => {
-        console.log('promise fulfilled')
-        setPersons(response.data)
+    phoneService
+      .getAll()
+      .then(initialNotes => {
+        setPersons(initialNotes)
       })
   }, [])
   console.log('render', persons.length, 'persons')
@@ -38,14 +38,13 @@ const App = () => {
       return
     }
     const newObject = { name: newName, number: newNumber }
-    axios
-      .post('http://localhost:3001/persons', newObject)
-      .then(response => {
-        console.log(response)
+    phoneService
+      .create(newObject)
+      .then(returnedPhone => {
+        setPersons(persons.concat(newObject))
+        setNewName('')
+        setNewNumber('')
       })
-    setPersons(persons.concat(newObject))
-    setNewName('')
-    setNewNumber('')
   }
 
 
