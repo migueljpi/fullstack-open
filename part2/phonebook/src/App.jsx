@@ -1,6 +1,8 @@
 import { useState, useEffect } from 'react'
 import axios from 'axios'
 import phoneService from './services/phones'
+import Notification from './components/Notification'
+import './components/notification.css'
 
 const App = () => {
   const [persons, setPersons] = useState([
@@ -12,6 +14,7 @@ const App = () => {
   const [newName, setNewName] = useState('')
   const [newNumber, setNewNumber] = useState('')
   const [filter, setFilter] = useState('')
+  const [message, setMessage] = useState('')
 
   useEffect(() => {
     console.log('adding to the phonebook from db.json')
@@ -41,6 +44,12 @@ const App = () => {
             setNewNumber('');
           })
       }
+      setMessage(
+          `${existingPerson.name} number was updated to ${newNumber}`
+        )
+        setTimeout(() => {
+          setMessage(null)
+        }, 5000)
       return;
     }
 
@@ -55,11 +64,17 @@ const App = () => {
     const newObject = { name: newName, number: newNumber }
     phoneService
       .create(newObject)
-      .then(returnedPhone => {
-        setPersons(persons.concat(returnedPhone))
+      .then(returnedPerson => {
+        setPersons(persons.concat(returnedPerson))
         setNewName('')
         setNewNumber('')
       })
+    setMessage(
+          `${newObject.name} was added to phonebook`
+        )
+        setTimeout(() => {
+          setMessage(null)
+        }, 5000)
   }
 
   const removeEntry = (id) => {
@@ -69,6 +84,12 @@ const App = () => {
         .then(() => {
           setPersons(persons.filter(person => person.id !== id))
         })
+      setMessage(
+          `Entry for ${persons.find(person => person.id === id).name} was deleted`
+        )
+        setTimeout(() => {
+          setMessage(null)
+        }, 5000)
     } else {
       return
     }
@@ -79,6 +100,7 @@ const App = () => {
   return (
     <div>
       <h2>Phonebook</h2>
+      {message !== '' && <Notification message={message} />}
       <Filter filter={filter} setFilter={setFilter} />
       <h3>add a new</h3>
       <NewEntry newName={newName} setNewName={setNewName} newNumber={newNumber} setNewNumber={setNewNumber} addEntry={addEntry} />
