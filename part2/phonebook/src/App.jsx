@@ -35,33 +35,55 @@ const App = () => {
   return (
     <div>
       <h2>Phonebook</h2>
-      <form>
-        <div>
-          filter shown with: <input value={filter} onChange={(event) => setFilter(event.target.value)}/>
-        </div>
-      </form>
-      <h2>add a new</h2>
-      <form onSubmit={addEntry}>
-        <div>
-          name: <input value={newName} onChange={(event) => setNewName(event.target.value)} />
-        </div>
-        <div>number: <input value={newNumber} onChange={(event) => setNewNumber(event.target.value)} /></div>
-        <div>
-          <button type="submit">add</button>
-        </div>
-      </form>
-      <h2>Numbers</h2>
+      <Filter filter={filter} setFilter={setFilter} />
+      <h3>add a new</h3>
+      <NewEntry newName={newName} setNewName={setNewName} newNumber={newNumber} setNewNumber={setNewNumber} addEntry={addEntry} />
+      <h3>Numbers</h3>
+      <Persons persons={persons} filter={filter} />
+    </div>
+  )
+}
+
+const Persons = ({ persons, filter }) => {
+  return (
+    <div>
       {persons
         .filter(person => person.name.toLowerCase().includes(filter.toLowerCase()))
         .map(person =>
-        <p key={person.name}>
-          {person.name} - {person.number}
-        </p>
+        <Person key={person.name} person={person} />
       )}
-      {/* <div>debug name: {newName}</div>
-      <div>debug number: {newNumber}</div>
-      <div>debug filter: {filter}</div> */}
     </div>
+  )
+}
+
+const Person = ({ person }) => {
+  return (
+    <p key={person.name}>
+      {person.name} - {person.number}
+    </p>
+  )
+}
+
+const NewEntry = ({ newName, setNewName, newNumber, setNewNumber, addEntry }) => {
+  return (
+    <form onSubmit={addEntry}>
+      <div>
+        name: <input value={newName} onChange={(event) => setNewName(event.target.value)} />
+      </div>
+      <div>number: <input value={newNumber} onChange={(event) => setNewNumber(event.target.value)} /></div>
+      <div>
+        <button type="submit">add</button>
+      </div>
+    </form>
+  )
+}
+const Filter = ({ filter, setFilter }) => {
+  return (
+    <form>
+      <div>
+        filter shown with: <input value={filter} onChange={(event) => setFilter(event.target.value)}/>
+      </div>
+    </form>
   )
 }
 
