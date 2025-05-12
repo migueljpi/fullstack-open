@@ -41,10 +41,23 @@ const App = () => {
     phoneService
       .create(newObject)
       .then(returnedPhone => {
-        setPersons(persons.concat(newObject))
+        setPersons(persons.concat(returnedPhone))
         setNewName('')
         setNewNumber('')
       })
+  }
+
+  const removeEntry = (id) => {
+    if (window.confirm(`Delete ${persons.find(person => person.id === id).name} ?`)) {
+      phoneService
+        .remove(id)
+        .then(() => {
+          setPersons(persons.filter(person => person.id !== id))
+        })
+    } else {
+      return
+    }
+
   }
 
 
@@ -55,27 +68,27 @@ const App = () => {
       <h3>add a new</h3>
       <NewEntry newName={newName} setNewName={setNewName} newNumber={newNumber} setNewNumber={setNewNumber} addEntry={addEntry} />
       <h3>Numbers</h3>
-      <Persons persons={persons} filter={filter} />
+      <Persons persons={persons} filter={filter} removeEntry={removeEntry} />
     </div>
   )
 }
 
-const Persons = ({ persons, filter }) => {
+const Persons = ({ persons, filter, removeEntry }) => {
   return (
     <div>
       {persons
         .filter(person => person.name.toLowerCase().includes(filter.toLowerCase()))
         .map(person =>
-        <Person key={person.name} person={person} />
+        <Person key={person.name} person={person} removeEntry={removeEntry} />
       )}
     </div>
   )
 }
 
-const Person = ({ person }) => {
+const Person = ({ person, removeEntry }) => {
   return (
     <p key={person.name}>
-      {person.name} - {person.number}
+      {person.name} - {person.number} - <button onClick={() => removeEntry(person.id)}>delete</button>
     </p>
   )
 }
