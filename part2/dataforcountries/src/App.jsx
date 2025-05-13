@@ -7,12 +7,13 @@ import CountrySearch from './components/CountrySearch';
 function App() {
   const [query, setQuery] = useState('');
   const [countries, setCountries] = useState([]);
-
+  const [selectedCountry, setSelectedCountry] = useState(null);
 
   useEffect(() => {
     console.log('effect is called')
 
     if (query === '') {
+      setSelectedCountry(null);
       setCountries([]);
       return;
     }
@@ -23,6 +24,7 @@ function App() {
         console.log('promise fulfilled');
         console.log(response);
         setCountries(response);
+        setSelectedCountry(null);
       })
       .catch(error => {
         console.log('error fetching countries:', error);
@@ -39,7 +41,7 @@ function App() {
       placeholder="Search for a country"
     /> */}
   <CountrySearch query={query} setQuery={setQuery} />
-  <CountryShow countries={countries} />
+  <CountryShow countries={countries} selectedCountry={selectedCountry} setSelectedCountry={setSelectedCountry} />
   </div>
 );
 }
