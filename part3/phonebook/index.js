@@ -1,6 +1,8 @@
 const express = require('express');
 const app = express();
 app.use(express.json())
+const morgan = require('morgan');
+app.use(morgan('tiny'));
 
 let persons = [
   { id: "1", name: "Arto Hellas", number: "040-123456" },
