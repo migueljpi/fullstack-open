@@ -33,11 +33,6 @@ app.use(morgan(':method :url :status :res[content-length] - :response-time ms :b
 //   { id: "4", name: "Mary Poppendieck", number: "39-23-6423122" },
 // ];
 
-const unknownEndpoint = (request, response) => {
-  response.status(404).send({ error: 'unknown endpoint' })
-}
-
-app.use(unknownEndpoint)
 
 
 app.get('/api/persons', (request, response) => {
@@ -75,6 +70,25 @@ app.delete('/api/persons/:id', (request, response, next) => {
     .catch(error => next(error))
 })
 
+app.put('/api/persons/:id', (request, response, next) => {
+  const { name, number } = request.body
+
+  Person.findById(request.params.id)
+    .then(person => {
+      if (!person) {
+        return response.status(404).end()
+      }
+
+      person.name = name
+      person.number = number
+
+      return person.save().then((updatedPerson) => {
+        response.json(updatedPerson)
+      })
+    })
+    .catch(error => next(error))
+})
+
 app.post('/api/persons', (request, response) => {
   const body = request.body;
 
@@ -101,6 +115,11 @@ app.post('/api/persons', (request, response) => {
 });
 
 
+const unknownEndpoint = (request, response) => {
+  response.status(404).send({ error: 'unknown endpoint' })
+}
+
+app.use(unknownEndpoint)
 
 const errorHandler = (error, request, response, next) => {
   console.error(error.message)
