@@ -18,7 +18,17 @@ const personSchema = new mongoose.Schema({
     type: String,
     minlength: 3
   },
-  number: String,
+  number: {
+    type: String,
+    minlength: 8,
+    required: true,
+    validate: {
+      validator: function(v) {
+        // Matches 2 or 3 digits, hyphen, then at least 5 digits (total min 8 chars)
+        return /^\d{2,3}-\d+$/.test(v);
+      },
+    }
+  }
 });
 
 personSchema.set('toJSON', {
