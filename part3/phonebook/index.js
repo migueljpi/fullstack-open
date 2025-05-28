@@ -33,6 +33,12 @@ app.use(morgan(':method :url :status :res[content-length] - :response-time ms :b
 //   { id: "4", name: "Mary Poppendieck", number: "39-23-6423122" },
 // ];
 
+const unknownEndpoint = (request, response) => {
+  response.status(404).send({ error: 'unknown endpoint' })
+}
+
+app.use(unknownEndpoint)
+
 
 app.get('/api/persons', (request, response) => {
   Person.find({}).then(persons => {
@@ -49,10 +55,16 @@ app.get ('/info', (request, response) => {
 });
 
 
-app.get('/api/persons/:id', (request, response) => {
-  Person.findById(request.params.id).then(person => {
-    response.json(person)
-  })
+app.get('/api/notes/:id', (request, response, next) => {
+  Person.findById(request.params.id)
+    .then(person => {
+      if (person) {
+        response.json(person)
+      } else {
+        response.status(404).end()
+      }
+    })
+    .catch(error => next(error))
 })
 
 app.delete('/api/persons/:id', (request, response, next) => {
@@ -88,11 +100,6 @@ app.post('/api/persons', (request, response) => {
   });
 });
 
-const unknownEndpoint = (request, response) => {
-  response.status(404).send({ error: 'unknown endpoint' })
-}
-
-app.use(unknownEndpoint)
 
 
 const errorHandler = (error, request, response, next) => {
