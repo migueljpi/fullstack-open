@@ -76,18 +76,22 @@ const App = () => {
 
     const newObject = { name: newName, number: newNumber }
     phoneService
-      .create(newObject)
-      .then(returnedPerson => {
-        setPersons(persons.concat(returnedPerson))
-        setNewName('')
-        setNewNumber('')
-      })
-    setMessage(
-          `${newObject.name} was added to phonebook`
-        )
-        setTimeout(() => {
-          setMessage(null)
-        }, 5000)
+    .create(newObject)
+    .then(returnedPerson => {
+      setPersons(persons.concat(returnedPerson))
+      setNewName('')
+      setNewNumber('')
+      setMessage(`${newObject.name} was added to phonebook`)
+      setTimeout(() => {
+        setMessage(null)
+      }, 5000)
+    })
+    .catch(error => {
+      setError(error.response.data.error)
+      setTimeout(() => {
+        setError(null)
+      }, 5000)
+    })
   }
 
   const removeEntry = (id) => {
