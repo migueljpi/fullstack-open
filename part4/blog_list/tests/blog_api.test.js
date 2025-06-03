@@ -26,12 +26,33 @@ test('returns the correct amount of blog posts in the json format', async () => 
   assert.strictEqual(response.body.length, helper.initialBlogs.length)
 })
 
-test.only('blog posts have property named id', async () => {
+test('blog posts have property named id', async () => {
   const response = await api.get('/api/blogs')
   response.body.forEach(blog => {
     assert.ok(blog.id, 'Blog is missing id property')
     assert.strictEqual(blog._id, undefined, 'Blog should not have _id property')
   })
+})
+
+test.only('a valid blog can be added', async () => {
+  const newBlog = helper.singleBlog
+
+  const blogsStart = await api.get('/api/blogs')
+
+
+  await api
+    .post('/api/blogs')
+    .send(newBlog)
+    .expect(201)
+    .expect('Content-Type', /application\/json/)
+
+  const blogsEnd = await api.get('/api/blogs')
+  assert.strictEqual(blogsEnd.body.length, blogsStart.body.length + 1)
+
+  console.log(blogsEnd.body)
+
+  const titles = blogsEnd.body.map(b => b.title)
+  assert.ok(titles.includes(newBlog.title), 'New blog title not found in database')
 })
 
 after(async () => {

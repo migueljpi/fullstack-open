@@ -33,7 +33,13 @@ const initialBlogs = [
   },
 ]
 
+const singleBlog = {
+    title: 'aditional blog',
+    author: 'Tester additional',
+    url: 'http://additional.com',
+    likes: 10,
+  }
 
 module.exports = {
-  initialBlogs
+  initialBlogs, singleBlog
 }
