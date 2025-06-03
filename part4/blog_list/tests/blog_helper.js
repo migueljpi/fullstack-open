@@ -46,7 +46,19 @@ const noLikes = {
   url: 'http://nolikes.com'
 }
 
+const noTitle = {
+  author: 'No Title Author',
+  url: 'http://notitle.com',
+  likes: 1
+}
+
+const noUrl = {
+  title: 'No URL Blog',
+  author: 'No URL Author',
+  likes: 1
+}
+
 
 module.exports = {
-  initialBlogs, singleBlog, noLikes
+  initialBlogs, singleBlog, noLikes, noTitle, noUrl
 }

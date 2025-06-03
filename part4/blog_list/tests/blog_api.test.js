@@ -67,6 +67,30 @@ test.only('if likes property is missing, defaults to 0', async () => {
   assert.strictEqual(response.body.likes, 0)
 })
 
+test.only('blog without title is not added and returns 400', async () => {
+  const newBlog = helper.noTitle
+
+  await api
+    .post('/api/blogs')
+    .send(newBlog)
+    .expect(400)
+
+  const blogsAtEnd = await api.get('/api/blogs')
+  assert.strictEqual(blogsAtEnd.body.length, helper.initialBlogs.length)
+})
+
+test.only('blog without url is not added and returns 400', async () => {
+  const newBlog = helper.noUrl
+
+  await api
+    .post('/api/blogs')
+    .send(newBlog)
+    .expect(400)
+
+  const blogsAtEnd = await api.get('/api/blogs')
+  assert.strictEqual(blogsAtEnd.body.length, helper.initialBlogs.length)
+})
+
 after(async () => {
   await mongoose.connection.close()
 })
