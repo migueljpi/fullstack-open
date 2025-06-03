@@ -106,6 +106,21 @@ test.only('a blog can be deleted', async () => {
   assert.ok(!ids.includes(blogToDelete.id), 'Deleted blog id still present')
 })
 
+test.only('blog likes can be updated', async () => {
+  const blogsAtStart = await api.get('/api/blogs')
+  const blogToUpdate = blogsAtStart.body[0]
+
+  const updatedLikes = blogToUpdate.likes + 1
+
+  const response = await api
+    .put(`/api/blogs/${blogToUpdate.id}`)
+    .send({ likes: updatedLikes })
+    .expect(200)
+    .expect('Content-Type', /application\/json/)
+
+  assert.strictEqual(response.body.likes, updatedLikes)
+})
+
 after(async () => {
   await mongoose.connection.close()
 })
