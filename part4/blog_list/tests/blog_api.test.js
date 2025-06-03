@@ -17,13 +17,21 @@ beforeEach(async () => {
 
 })
 
-test.only('returns the correct amount of blog posts in the json format', async () => {
+test('returns the correct amount of blog posts in the json format', async () => {
   const response = await api
     .get('/api/blogs')
     .expect(200)
     .expect('Content-Type', /application\/json/)
 
   assert.strictEqual(response.body.length, helper.initialBlogs.length)
+})
+
+test.only('blog posts have property named id', async () => {
+  const response = await api.get('/api/blogs')
+  response.body.forEach(blog => {
+    assert.ok(blog.id, 'Blog is missing id property')
+    assert.strictEqual(blog._id, undefined, 'Blog should not have _id property')
+  })
 })
 
 after(async () => {
