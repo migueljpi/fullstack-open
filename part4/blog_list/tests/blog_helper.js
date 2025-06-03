@@ -40,6 +40,13 @@ const singleBlog = {
     likes: 10,
   }
 
+const noLikes = {
+  title: 'No Likes Blog',
+  author: 'No Likes Author',
+  url: 'http://nolikes.com'
+}
+
+
 module.exports = {
-  initialBlogs, singleBlog
+  initialBlogs, singleBlog, noLikes
 }

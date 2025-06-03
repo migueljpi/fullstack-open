@@ -34,7 +34,7 @@ test('blog posts have property named id', async () => {
   })
 })
 
-test.only('a valid blog can be added', async () => {
+test('a valid blog can be added', async () => {
   const newBlog = helper.singleBlog
 
   const blogsStart = await api.get('/api/blogs')
@@ -53,6 +53,18 @@ test.only('a valid blog can be added', async () => {
 
   const titles = blogsEnd.body.map(b => b.title)
   assert.ok(titles.includes(newBlog.title), 'New blog title not found in database')
+})
+
+test.only('if likes property is missing, defaults to 0', async () => {
+  const newBlog = helper.noLikes
+
+  const response = await api
+    .post('/api/blogs')
+    .send(newBlog)
+    .expect(201)
+    .expect('Content-Type', /application\/json/)
+
+  assert.strictEqual(response.body.likes, 0)
 })
 
 after(async () => {
