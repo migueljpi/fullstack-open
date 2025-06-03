@@ -55,7 +55,7 @@ test('a valid blog can be added', async () => {
   assert.ok(titles.includes(newBlog.title), 'New blog title not found in database')
 })
 
-test.only('if likes property is missing, defaults to 0', async () => {
+test('if likes property is missing, defaults to 0', async () => {
   const newBlog = helper.noLikes
 
   const response = await api
@@ -67,7 +67,7 @@ test.only('if likes property is missing, defaults to 0', async () => {
   assert.strictEqual(response.body.likes, 0)
 })
 
-test.only('blog without title is not added and returns 400', async () => {
+test('blog without title is not added and returns 400', async () => {
   const newBlog = helper.noTitle
 
   await api
@@ -79,7 +79,7 @@ test.only('blog without title is not added and returns 400', async () => {
   assert.strictEqual(blogsAtEnd.body.length, helper.initialBlogs.length)
 })
 
-test.only('blog without url is not added and returns 400', async () => {
+test('blog without url is not added and returns 400', async () => {
   const newBlog = helper.noUrl
 
   await api
@@ -89,6 +89,21 @@ test.only('blog without url is not added and returns 400', async () => {
 
   const blogsAtEnd = await api.get('/api/blogs')
   assert.strictEqual(blogsAtEnd.body.length, helper.initialBlogs.length)
+})
+
+test.only('a blog can be deleted', async () => {
+  const blogsAtStart = await api.get('/api/blogs')
+  const blogToDelete = blogsAtStart.body[0]
+
+  await api
+    .delete(`/api/blogs/${blogToDelete.id}`)
+    .expect(204)
+
+  const blogsAtEnd = await api.get('/api/blogs')
+  assert.strictEqual(blogsAtEnd.body.length, blogsAtStart.body.length - 1)
+
+  const ids = blogsAtEnd.body.map(b => b.id)
+  assert.ok(!ids.includes(blogToDelete.id), 'Deleted blog id still present')
 })
 
 after(async () => {
