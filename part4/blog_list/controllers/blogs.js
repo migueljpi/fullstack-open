@@ -2,6 +2,7 @@ const blogsRouter = require('express').Router()
 const Blog = require('../models/blog')
 const User = require('../models/user')
 const jwt = require('jsonwebtoken')
+const { userExtractor } = require('../utils/middleware')
 
 // blogsRouter.get('/', (request, response) => {
 //   Blog.find({}).then((blogs) => {
@@ -24,22 +25,14 @@ blogsRouter.get('/', async (request, response) => {
   response.json(blogs)
 })
 
-blogsRouter.post('/', async (request, response) => {
+blogsRouter.post('/', userExtractor, async (request, response) => {
   const body = request.body
-
-  const decodedToken = jwt.verify(request.token, process.env.SECRET)
-  if (!decodedToken.id) {
-    return response.status(401).json({ error: 'token invalid' })
-  }
-  const user = await User.findById(decodedToken.id)
-
-  if (!user) {
-    return response.status(400).json({ error: 'userId missing or not valid' })
-  }
+  const user = request.user
 
   if (!body.title || !body.url) {
-      return response.status(400).json({ error: 'title and url are required' })
-    }
+    return response.status(400).json({ error: 'title and url are required' })
+  }
+
   const blog = new Blog({
     title: body.title,
     author: body.author,
@@ -52,22 +45,18 @@ blogsRouter.post('/', async (request, response) => {
   user.blogs = user.blogs.concat(savedBlog._id)
   await user.save()
 
-  // blog.save().then((result) => {
-  //   response.status(201).json(result)
-  // })
+  response.status(201).json(savedBlog)
 })
 
-blogsRouter.delete('/:id', async (request, response) => {
-  const token = request.token
-  if (!token) {
-    return response.status(401).json({ error: 'token missing or invalid' })
-  }
-
-  const decodedToken = jwt.verify(token, process.env.SECRET)
-
+blogsRouter.delete('/:id', userExtractor, async (request, response) => {
+  const user = request.user
   const blog = await Blog.findById(request.params.id)
 
-  if (blog.user.toString() === decodedToken.id.toString()) {
+  if (!blog) {
+    return response.status(404).json({ error: 'blog not found' })
+  }
+
+  if (blog.user.toString() === user._id.toString()) {
     await Blog.findByIdAndDelete(request.params.id)
     return response.status(204).end()
   } else {
