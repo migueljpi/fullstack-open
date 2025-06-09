@@ -1,9 +1,9 @@
 POST http://localhost:3003/api/blogs
 Content-Type: application/json
-Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VybmFtZSI6InVzZXIzIiwiaWQiOiI2ODQ2ZDhhMDlhMDAxMDM1YTJiMWViYWYiLCJpYXQiOjE3NDk0NzUzOTh9.dZL1qduwyrzsuvpT2jk5GxsrhO2IQ8kNLevOE69X26Q
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VybmFtZSI6InVzZXIyIiwiaWQiOiI2ODQ2ZDg5NDlhMDAxMDM1YTJiMWViYWMiLCJpYXQiOjE3NDk0NzY4Nzh9.r23z9pB-ZnwQDPmxVwCg_kzCmD4YXnAmEDup_uCN_gM
 
 {
-  "title": "Test Blog 7 - With bearer",
+  "title": "Test Blog 8 - testing 4.20*: Blog List Expansion, step 8",
   "author": "Tester",
   "url": "www.example.com",
   "likes": 3,
