@@ -14,6 +14,7 @@ const App = () => {
   const [author, setAuthor] = useState('')
   const [url, setUrl] = useState('')
   const [message, setMessage] = useState({ message: null, type: null })
+  const [blogFormVisible, setBlogFormVisible] = useState(false)
 
   useEffect(() => {
     blogService.getAll().then(blogs =>
@@ -48,6 +49,7 @@ const App = () => {
       setNewBlog('')
       setMessage({ message: `A new blog "${returnedBlog.title}" by ${returnedBlog.author} added!`, type: 'success' })
       setTimeout(() => setMessage({ message: null, type: null }), 4000)
+      setBlogFormVisible(false)
     })
   }
 
@@ -153,9 +155,16 @@ const App = () => {
     <div>
       <h2>blogs</h2>
       <NotificationMessage message={message.message} type={message.type} />
-      <p>{user.name} logged in
-      <button onClick={handleLogout}>logout</button></p>
-      {blogForm()}
+      <p>{user.name} logged in <button onClick={handleLogout}>logout</button></p>
+
+      <div style={{ display: blogFormVisible ? 'none' : '' }}>
+        <button onClick={() => setBlogFormVisible(true)}>create new blog</button>
+      </div>
+      <div style={{ display: blogFormVisible ? '' : 'none' }}>
+        {blogForm()}
+        <button onClick={() => setBlogFormVisible(false)}>cancel</button>
+      </div>
+
       {blogs.map(blog =>
         <Blog key={blog.id} blog={blog} />
       )}
