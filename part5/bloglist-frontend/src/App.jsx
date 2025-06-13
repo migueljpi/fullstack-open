@@ -130,6 +130,21 @@ const App = () => {
     </form>
   )
 
+  const handleLike = async (blog) => {
+    const updatedBlog = {
+      ...blog,
+      user: blog.user.id || blog.user,
+      likes: blog.likes + 1,
+    }
+    try {
+      const returnedBlog = await blogService.update(blog.id, updatedBlog)
+      setBlogs(blogs.map(b => b.id === blog.id ? returnedBlog : b))
+    } catch (error) {
+      setMessage({ message: 'Failed to like blog', type: 'error' })
+      setTimeout(() => setMessage({ message: null, type: null }), 4000)
+    }
+  }
+
   if (user === null) {
     return (
       <div>
@@ -156,7 +171,7 @@ const App = () => {
       </div>
 
       {blogs.map(blog =>
-        <Blog key={blog.id} blog={blog} />
+        <Blog key={blog.id} blog={blog} handleLike={handleLike} />
       )}
     </div>
   )
