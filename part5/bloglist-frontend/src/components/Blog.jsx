@@ -1,6 +1,7 @@
 import { useState } from 'react'
+import PropTypes from 'prop-types'
 
-const Blog = ({ blog, handleLike }) => {
+const Blog = ({ blog, handleLike, user, handleDelete }) => {
   const [showDetails, setShowDetails] = useState(false)
 
   const blogStyle = {
@@ -10,6 +11,10 @@ const Blog = ({ blog, handleLike }) => {
     borderWidth: 1,
     marginBottom: 5
   }
+
+  const isOwner = user && blog.user && (
+    blog.user.username === user.username
+  )
 
   return (
     <div style={blogStyle}>
@@ -28,6 +33,14 @@ const Blog = ({ blog, handleLike }) => {
               Likes: {blog.likes} <button onClick={() => handleLike(blog)}>like</button>
             </div>
             <div>Author: {blog.author}</div>
+            {isOwner
+              ? (
+                <button onClick={() => handleDelete(blog)}>
+                  delete
+                </button>
+              )
+              : null
+            }
           </div>
         )
         : null
@@ -36,5 +49,9 @@ const Blog = ({ blog, handleLike }) => {
   )
 }
 // commit 5.9: Blog List Frontend, step 9
+
+Blog.propTypes = {
+  blog: PropTypes.object.isRequired,
+}
 
 export default Blog
