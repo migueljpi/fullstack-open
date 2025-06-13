@@ -3,6 +3,7 @@ import Blog from './components/Blog'
 import blogService from './services/blogs'
 import loginService from './services/login'
 import NotificationMessage from './components/NotificationMessage'
+import BlogForm from './components/BlogForm'
 
 const App = () => {
   const [blogs, setBlogs] = useState([])
@@ -10,9 +11,9 @@ const App = () => {
   const [username, setUsername] = useState('')
   const [password, setPassword] = useState('')
   const [user, setUser] = useState(null)
-  const [title, setTitle] = useState('')
-  const [author, setAuthor] = useState('')
-  const [url, setUrl] = useState('')
+  // const [title, setTitle] = useState('')
+  // const [author, setAuthor] = useState('')
+  // const [url, setUrl] = useState('')
   const [message, setMessage] = useState({ message: null, type: null })
   const [blogFormVisible, setBlogFormVisible] = useState(false)
 
@@ -31,26 +32,15 @@ const App = () => {
     }
   }, [])
 
-  const addBlog = (event) => {
-    event.preventDefault()
-    const blogObject = {
-      title,
-      author,
-      url
-  }
-
-  blogService
-    .create(blogObject)
-    .then(returnedBlog => {
-      setBlogs(blogs.concat(returnedBlog))
-      setTitle('')
-      setAuthor('')
-      setUrl('')
-      setNewBlog('')
-      setMessage({ message: `A new blog "${returnedBlog.title}" by ${returnedBlog.author} added!`, type: 'success' })
-      setTimeout(() => setMessage({ message: null, type: null }), 4000)
-      setBlogFormVisible(false)
-    })
+  const addBlog = (blogObject) => {
+    blogService
+      .create(blogObject)
+      .then(returnedBlog => {
+        setBlogs(blogs.concat(returnedBlog))
+        setMessage({ message: `A new blog "${returnedBlog.title}" by ${returnedBlog.author} added!`, type: 'success' })
+        setTimeout(() => setMessage({ message: null, type: null }), 4000)
+        setBlogFormVisible(false)
+      })
   }
 
   const handleLogin = async (event) => {
@@ -161,7 +151,7 @@ const App = () => {
         <button onClick={() => setBlogFormVisible(true)}>create new blog</button>
       </div>
       <div style={{ display: blogFormVisible ? '' : 'none' }}>
-        {blogForm()}
+        <BlogForm createBlog={addBlog} />
         <button onClick={() => setBlogFormVisible(false)}>cancel</button>
       </div>
 
