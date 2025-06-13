@@ -35,5 +35,6 @@ const Blog = ({ blog, handleLike }) => {
     </div>
   )
 }
+// commit 5.9: Blog List Frontend, step 9
 
 export default Blog
