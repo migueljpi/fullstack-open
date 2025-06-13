@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react'
 import Blog from './components/Blog'
 import blogService from './services/blogs'
 import loginService from './services/login'
+import NotificationMessage from './components/NotificationMessage'
 
 const App = () => {
   const [blogs, setBlogs] = useState([])
@@ -12,6 +13,7 @@ const App = () => {
   const [title, setTitle] = useState('')
   const [author, setAuthor] = useState('')
   const [url, setUrl] = useState('')
+  const [message, setMessage] = useState({ message: null, type: null })
 
   useEffect(() => {
     blogService.getAll().then(blogs =>
@@ -44,6 +46,8 @@ const App = () => {
       setAuthor('')
       setUrl('')
       setNewBlog('')
+      setMessage({ message: `A new blog "${returnedBlog.title}" by ${returnedBlog.author} added!`, type: 'success' })
+      setTimeout(() => setMessage({ message: null, type: null }), 4000)
     })
   }
 
@@ -61,8 +65,12 @@ const App = () => {
       setUser(user)
       setUsername('')
       setPassword('')
+      setMessage({ message: `logged in as ${user.username}`, type: 'success' })
+      setTimeout(() => setMessage({ message: null, type: null }), 4000)
     } catch (exception) {
       console.error('Login failed:', exception)
+      setMessage({ message: 'Wrong username or password', type: 'error' })
+      setTimeout(() => setMessage({ message: null, type: null }), 4000)
     }
   }
 
@@ -70,6 +78,8 @@ const App = () => {
     window.localStorage.removeItem('loggedBlogappUser')
     setUser(null)
     blogService.setToken(null)
+    setMessage({ message: `logged out`, type: 'success' })
+    setTimeout(() => setMessage({ message: null, type: null }), 4000)
   }
 
   const loginForm = () => (
@@ -95,16 +105,6 @@ const App = () => {
       <button type="submit">login</button>
     </form>
   )
-
-  if (user === null) {
-    return (
-      <div>
-        <h2>Log in to application</h2>
-          {loginForm()}
-      </div>
-    )
-  }
-
   const blogForm = () => (
     <form onSubmit={addBlog}>
       <div>
@@ -138,9 +138,21 @@ const App = () => {
     </form>
   )
 
+  if (user === null) {
+    return (
+      <div>
+        <h2>Log in to application</h2>
+        <NotificationMessage message={message.message} type={message.type} />
+          {loginForm()}
+      </div>
+    )
+  }
+
+
   return (
     <div>
       <h2>blogs</h2>
+      <NotificationMessage message={message.message} type={message.type} />
       <p>{user.name} logged in
       <button onClick={handleLogout}>logout</button></p>
       {blogForm()}
