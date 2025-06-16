@@ -17,16 +17,16 @@ const Blog = ({ blog, handleLike, user, handleDelete }) => {
   )
 
   return (
-    <div style={blogStyle}>
+    <div style={blogStyle} className="blog">
       <div>
-        {blog.title}
+        <span>{blog.title} - {blog.author}
         <button onClick={() => setShowDetails(!showDetails)}>
           {showDetails ? 'hide' : 'view'}
-        </button>
+        </button></span>
       </div>
       {showDetails
         ? (
-          <div>
+          <div className="blogDetails">
             <div>Title: {blog.title}</div>
             <div>URL: {blog.url}</div>
             <div>
