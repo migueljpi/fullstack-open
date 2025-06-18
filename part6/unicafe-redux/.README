@@ -1,0 +1,2 @@
+On 6.1, since "rest of the tests" is not specific on which tests should be added,
+I added tests for 'ok is incremented', 'bad is incremented' and 'state is reset to zero'
