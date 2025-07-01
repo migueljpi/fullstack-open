@@ -12,11 +12,13 @@ import {
   updateBlog,
   deleteBlog,
 } from "./services/blogs";
+import { useUserValue, useUserDispatch } from "./contexts/UserContext";
 
 const App = () => {
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
-  const [user, setUser] = useState(null);
+  const user = useUserValue();
+  const userDispatch = useUserDispatch();
   const [blogFormVisible, setBlogFormVisible] = useState(false);
 
   const notificationDispatch = useNotificationDispatch();
@@ -103,7 +105,7 @@ const App = () => {
     const loggedUserJSON = window.localStorage.getItem("loggedBlogappUser");
     if (loggedUserJSON) {
       const user = JSON.parse(loggedUserJSON);
-      setUser(user);
+      userDispatch({ type: "INITIALIZE", payload: user });
       setToken(user.token);
     }
   }, []);
@@ -130,11 +132,9 @@ const App = () => {
         username,
         password,
       });
-      console.log("Login response:", user);
-      console.log("Token received:", user.token);
       window.localStorage.setItem("loggedBlogappUser", JSON.stringify(user));
+      userDispatch({ type: "LOGIN", payload: user });
       setToken(user.token);
-      setUser(user);
       setUsername("");
       setPassword("");
       notificationDispatch({
@@ -160,7 +160,7 @@ const App = () => {
 
   const handleLogout = () => {
     window.localStorage.removeItem("loggedBlogappUser");
-    setUser(null);
+    userDispatch({ type: "LOGOUT" });
     setToken(null);
     notificationDispatch({
       type: "SET_NOTIFICATION",
