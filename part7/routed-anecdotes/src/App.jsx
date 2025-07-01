@@ -78,11 +78,17 @@ const CreateNew = (props) => {
       info: info.value,
       votes: 0
     })
-    setContent('')
-    setAuthor('')
-    setInfo('')
+
+    // so that it resets when submitting.
+    content.reset()
+    author.reset()
+    info.reset()
+
     navigate('/')
-    props.setNotification(`a new anecdote ${content} created!`)
+    props.setNotification(`a new anecdote ${content.value} created!`)
+  }
+
+  const handleReset = () => {
   }
 
   return (
@@ -102,6 +108,7 @@ const CreateNew = (props) => {
           <input {...info} />
         </div>
         <button>create</button>
+        <button type="button" onClick={handleReset}>reset</button>
       </form>
     </div>
   )
