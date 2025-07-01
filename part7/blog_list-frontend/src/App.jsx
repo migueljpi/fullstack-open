@@ -4,6 +4,7 @@ import blogService from "./services/blogs";
 import loginService from "./services/login";
 import NotificationMessage from "./components/NotificationMessage";
 import BlogForm from "./components/BlogForm";
+import { useNotificationDispatch } from "./contexts/NotificationContext";
 
 const App = () => {
   const [blogs, setBlogs] = useState([]);
@@ -11,11 +12,9 @@ const App = () => {
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
   const [user, setUser] = useState(null);
-  // const [title, setTitle] = useState('')
-  // const [author, setAuthor] = useState('')
-  // const [url, setUrl] = useState('')
-  const [message, setMessage] = useState({ message: null, type: null });
   const [blogFormVisible, setBlogFormVisible] = useState(false);
+
+  const notificationDispatch = useNotificationDispatch();
 
   useEffect(() => {
     blogService.getAll().then((blogs) => setBlogs(blogs));
@@ -33,11 +32,17 @@ const App = () => {
   const addBlog = (blogObject) => {
     blogService.create(blogObject).then((returnedBlog) => {
       setBlogs(blogs.concat(returnedBlog));
-      setMessage({
-        message: `A new blog "${returnedBlog.title}" by ${returnedBlog.author} added!`,
-        type: "success",
+      notificationDispatch({
+        type: "SET_NOTIFICATION",
+        payload: {
+          message: `A new blog "${returnedBlog.title}" by ${returnedBlog.author} added!`,
+          type: "success",
+        },
       });
-      setTimeout(() => setMessage({ message: null, type: null }), 4000);
+      setTimeout(
+        () => notificationDispatch({ type: "CLEAR_NOTIFICATION" }),
+        4000,
+      );
       setBlogFormVisible(false);
     });
   };
@@ -50,17 +55,31 @@ const App = () => {
         username,
         password,
       });
+      console.log("Login response:", user); // Add this line
+      console.log("Token received:", user.token);
       window.localStorage.setItem("loggedBlogappUser", JSON.stringify(user));
       blogService.setToken(user.token);
       setUser(user);
       setUsername("");
       setPassword("");
-      setMessage({ message: `logged in as ${user.username}`, type: "success" });
-      setTimeout(() => setMessage({ message: null, type: null }), 4000);
+      notificationDispatch({
+        type: "SET_NOTIFICATION",
+        payload: { message: `logged in as ${user.username}`, type: "success" },
+      });
+      setTimeout(
+        () => notificationDispatch({ type: "CLEAR_NOTIFICATION" }),
+        4000,
+      );
     } catch (exception) {
       console.error("Login failed:", exception);
-      setMessage({ message: "Wrong username or password", type: "error" });
-      setTimeout(() => setMessage({ message: null, type: null }), 4000);
+      notificationDispatch({
+        type: "SET_NOTIFICATION",
+        payload: { message: "Wrong username or password", type: "error" },
+      });
+      setTimeout(
+        () => notificationDispatch({ type: "CLEAR_NOTIFICATION" }),
+        4000,
+      );
     }
   };
 
@@ -68,8 +87,14 @@ const App = () => {
     window.localStorage.removeItem("loggedBlogappUser");
     setUser(null);
     blogService.setToken(null);
-    setMessage({ message: "logged out", type: "success" });
-    setTimeout(() => setMessage({ message: null, type: null }), 4000);
+    notificationDispatch({
+      type: "SET_NOTIFICATION",
+      payload: { message: "logged out", type: "success" },
+    });
+    setTimeout(
+      () => notificationDispatch({ type: "CLEAR_NOTIFICATION" }),
+      4000,
+    );
   };
 
   const loginForm = () => (
@@ -107,9 +132,23 @@ const App = () => {
     try {
       const returnedBlog = await blogService.update(blog.id, updatedBlog);
       setBlogs(blogs.map((b) => (b.id === blog.id ? returnedBlog : b)));
+      notificationDispatch({
+        type: "SET_NOTIFICATION",
+        payload: { message: `You liked "${blog.title}"`, type: "success" },
+      });
+      setTimeout(
+        () => notificationDispatch({ type: "CLEAR_NOTIFICATION" }),
+        4000,
+      );
     } catch (error) {
-      setMessage({ message: "Failed to like blog", type: "error" });
-      setTimeout(() => setMessage({ message: null, type: null }), 4000);
+      notificationDispatch({
+        type: "SET_NOTIFICATION",
+        payload: { message: "Failed to like blog", type: "error" },
+      });
+      setTimeout(
+        () => notificationDispatch({ type: "CLEAR_NOTIFICATION" }),
+        4000,
+      );
     }
   };
 
@@ -118,11 +157,23 @@ const App = () => {
       try {
         await blogService.remove(blog.id);
         setBlogs(blogs.filter((b) => b.id !== blog.id));
-        setMessage({ message: `Deleted "${blog.title}"`, type: "success" });
-        setTimeout(() => setMessage({ message: null, type: null }), 4000);
+        notificationDispatch({
+          type: "SET_NOTIFICATION",
+          payload: { message: `Deleted "${blog.title}"`, type: "success" },
+        });
+        setTimeout(
+          () => notificationDispatch({ type: "CLEAR_NOTIFICATION" }),
+          4000,
+        );
       } catch (error) {
-        setMessage({ message: "Failed to delete blog", type: "error" });
-        setTimeout(() => setMessage({ message: null, type: null }), 4000);
+        notificationDispatch({
+          type: "SET_NOTIFICATION",
+          payload: { message: "Failed to delete blog", type: "error" },
+        });
+        setTimeout(
+          () => notificationDispatch({ type: "CLEAR_NOTIFICATION" }),
+          4000,
+        );
       }
     }
   };
@@ -131,7 +182,7 @@ const App = () => {
     return (
       <div>
         <h2>Log in to application</h2>
-        <NotificationMessage message={message.message} type={message.type} />
+        <NotificationMessage />
         {loginForm()}
       </div>
     );
@@ -140,7 +191,7 @@ const App = () => {
   return (
     <div>
       <h2>blogs</h2>
-      <NotificationMessage message={message.message} type={message.type} />
+      <NotificationMessage />
       <p>
         {user.name} logged in <button onClick={handleLogout}>logout</button>
       </p>
