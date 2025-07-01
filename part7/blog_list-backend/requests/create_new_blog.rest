@@ -1,0 +1,11 @@
+POST http://localhost:3003/api/blogs
+Content-Type: application/json
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VybmFtZSI6InVzZXIzIiwiaWQiOiI2ODQ2ZDhhMDlhMDAxMDM1YTJiMWViYWYiLCJpYXQiOjE3NDk0Nzk3NjN9.Rrhfr4-oDftwVd7dO8mFS3FemVOjdI7EYqCS0EoFgto
+
+{
+  "title": "Test Blog 9 - 4.22*: Blog List Expansion, step 10",
+  "author": "Tester",
+  "url": "www.example.com",
+  "likes": 3,
+  "userId": "6846d8a09a001035a2b1ebaf"
+}
