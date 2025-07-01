@@ -1,41 +1,40 @@
 import { useState, useEffect } from "react";
 import Blog from "./components/Blog";
-import blogService from "./services/blogs";
 import loginService from "./services/login";
 import NotificationMessage from "./components/NotificationMessage";
 import BlogForm from "./components/BlogForm";
 import { useNotificationDispatch } from "./contexts/NotificationContext";
+import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
+import {
+  getBlogs,
+  createBlog,
+  setToken,
+  updateBlog,
+  deleteBlog,
+} from "./services/blogs";
 
 const App = () => {
-  const [blogs, setBlogs] = useState([]);
-  const [newBlog, setNewBlog] = useState("");
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
   const [user, setUser] = useState(null);
   const [blogFormVisible, setBlogFormVisible] = useState(false);
 
   const notificationDispatch = useNotificationDispatch();
+  const queryClient = useQueryClient();
 
-  useEffect(() => {
-    blogService.getAll().then((blogs) => setBlogs(blogs));
-  }, []);
+  const result = useQuery({
+    queryKey: ["blogs"],
+    queryFn: getBlogs,
+  });
 
-  useEffect(() => {
-    const loggedUserJSON = window.localStorage.getItem("loggedBlogappUser");
-    if (loggedUserJSON) {
-      const user = JSON.parse(loggedUserJSON);
-      setUser(user);
-      blogService.setToken(user.token);
-    }
-  }, []);
-
-  const addBlog = (blogObject) => {
-    blogService.create(blogObject).then((returnedBlog) => {
-      setBlogs(blogs.concat(returnedBlog));
+  const newBlogMutation = useMutation({
+    mutationFn: createBlog,
+    onSuccess: (newBlog) => {
+      queryClient.invalidateQueries({ queryKey: ["blogs"] });
       notificationDispatch({
         type: "SET_NOTIFICATION",
         payload: {
-          message: `A new blog "${returnedBlog.title}" by ${returnedBlog.author} added!`,
+          message: `A new blog "${newBlog.title}" by ${newBlog.author} added!`,
           type: "success",
         },
       });
@@ -44,7 +43,83 @@ const App = () => {
         4000,
       );
       setBlogFormVisible(false);
-    });
+    },
+  });
+
+  const likeBlogMutation = useMutation({
+    mutationFn: ({ id, updatedBlog }) => updateBlog(id, updatedBlog),
+    onSuccess: (updatedBlog) => {
+      queryClient.invalidateQueries({ queryKey: ["blogs"] });
+      notificationDispatch({
+        type: "SET_NOTIFICATION",
+        payload: {
+          message: `You liked "${updatedBlog.title}"`,
+          type: "success",
+        },
+      });
+      setTimeout(
+        () => notificationDispatch({ type: "CLEAR_NOTIFICATION" }),
+        4000,
+      );
+    },
+    onError: () => {
+      notificationDispatch({
+        type: "SET_NOTIFICATION",
+        payload: { message: "Failed to like blog", type: "error" },
+      });
+      setTimeout(
+        () => notificationDispatch({ type: "CLEAR_NOTIFICATION" }),
+        4000,
+      );
+    },
+  });
+
+  const deleteBlogMutation = useMutation({
+    mutationFn: deleteBlog,
+    onSuccess: (_, deletedBlogId) => {
+      queryClient.invalidateQueries({ queryKey: ["blogs"] });
+      notificationDispatch({
+        type: "SET_NOTIFICATION",
+        payload: { message: "Blog deleted successfully", type: "success" },
+      });
+      setTimeout(
+        () => notificationDispatch({ type: "CLEAR_NOTIFICATION" }),
+        4000,
+      );
+    },
+    onError: () => {
+      notificationDispatch({
+        type: "SET_NOTIFICATION",
+        payload: { message: "Failed to delete blog", type: "error" },
+      });
+      setTimeout(
+        () => notificationDispatch({ type: "CLEAR_NOTIFICATION" }),
+        4000,
+      );
+    },
+  });
+
+  useEffect(() => {
+    const loggedUserJSON = window.localStorage.getItem("loggedBlogappUser");
+    if (loggedUserJSON) {
+      const user = JSON.parse(loggedUserJSON);
+      setUser(user);
+      setToken(user.token);
+    }
+  }, []);
+
+  if (result.isLoading) {
+    return <div>loading data...</div>;
+  }
+
+  if (result.error) {
+    return <div>blog service not available due to problems in server</div>;
+  }
+
+  const blogs = result.data;
+
+  const addBlog = (blogObject) => {
+    newBlogMutation.mutate(blogObject);
   };
 
   const handleLogin = async (event) => {
@@ -55,10 +130,10 @@ const App = () => {
         username,
         password,
       });
-      console.log("Login response:", user); // Add this line
+      console.log("Login response:", user);
       console.log("Token received:", user.token);
       window.localStorage.setItem("loggedBlogappUser", JSON.stringify(user));
-      blogService.setToken(user.token);
+      setToken(user.token);
       setUser(user);
       setUsername("");
       setPassword("");
@@ -86,7 +161,7 @@ const App = () => {
   const handleLogout = () => {
     window.localStorage.removeItem("loggedBlogappUser");
     setUser(null);
-    blogService.setToken(null);
+    setToken(null);
     notificationDispatch({
       type: "SET_NOTIFICATION",
       payload: { message: "logged out", type: "success" },
@@ -123,58 +198,18 @@ const App = () => {
     </form>
   );
 
-  const handleLike = async (blog) => {
+  const handleLike = (blog) => {
     const updatedBlog = {
       ...blog,
       user: blog.user.id || blog.user,
       likes: blog.likes + 1,
     };
-    try {
-      const returnedBlog = await blogService.update(blog.id, updatedBlog);
-      setBlogs(blogs.map((b) => (b.id === blog.id ? returnedBlog : b)));
-      notificationDispatch({
-        type: "SET_NOTIFICATION",
-        payload: { message: `You liked "${blog.title}"`, type: "success" },
-      });
-      setTimeout(
-        () => notificationDispatch({ type: "CLEAR_NOTIFICATION" }),
-        4000,
-      );
-    } catch (error) {
-      notificationDispatch({
-        type: "SET_NOTIFICATION",
-        payload: { message: "Failed to like blog", type: "error" },
-      });
-      setTimeout(
-        () => notificationDispatch({ type: "CLEAR_NOTIFICATION" }),
-        4000,
-      );
-    }
+    likeBlogMutation.mutate({ id: blog.id, updatedBlog });
   };
 
-  const handleDelete = async (blog) => {
+  const handleDelete = (blog) => {
     if (window.confirm(`Remove blog "${blog.title}" by ${blog.author}?`)) {
-      try {
-        await blogService.remove(blog.id);
-        setBlogs(blogs.filter((b) => b.id !== blog.id));
-        notificationDispatch({
-          type: "SET_NOTIFICATION",
-          payload: { message: `Deleted "${blog.title}"`, type: "success" },
-        });
-        setTimeout(
-          () => notificationDispatch({ type: "CLEAR_NOTIFICATION" }),
-          4000,
-        );
-      } catch (error) {
-        notificationDispatch({
-          type: "SET_NOTIFICATION",
-          payload: { message: "Failed to delete blog", type: "error" },
-        });
-        setTimeout(
-          () => notificationDispatch({ type: "CLEAR_NOTIFICATION" }),
-          4000,
-        );
-      }
+      deleteBlogMutation.mutate(blog.id);
     }
   };
 
