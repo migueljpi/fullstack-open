@@ -17,6 +17,7 @@ import Users from "./components/Users";
 import { Routes, Route } from "react-router-dom";
 import User from "./components/User";
 import BlogView from "./components/BlogView";
+import Navigation from "./components/Navigation";
 
 const App = () => {
   const [username, setUsername] = useState("");
@@ -230,10 +231,9 @@ const App = () => {
 
   return (
     <div>
-      <h1>blogs</h1>
+      <h1>Blog app</h1>
       <NotificationMessage />
-      <p>{user.name} logged in</p>
-      <button onClick={handleLogout}>logout</button>
+      <Navigation user={user} handleLogout={handleLogout} />
       <Routes>
         <Route
           path="/"
