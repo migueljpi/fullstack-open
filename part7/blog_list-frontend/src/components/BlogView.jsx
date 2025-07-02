@@ -1,0 +1,129 @@
+import { useParams } from "react-router-dom";
+import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
+import { getBlogs, updateBlog, deleteBlog } from "../services/blogs";
+import { useUserValue } from "../contexts/UserContext";
+import { useNotificationDispatch } from "../contexts/NotificationContext";
+
+const BlogView = () => {
+  const { id } = useParams();
+  const user = useUserValue();
+  const notificationDispatch = useNotificationDispatch();
+  const queryClient = useQueryClient();
+
+  const result = useQuery({
+    queryKey: ["blogs"],
+    queryFn: getBlogs,
+  });
+
+  const likeBlogMutation = useMutation({
+    mutationFn: ({ id, updatedBlog }) => updateBlog(id, updatedBlog),
+    onSuccess: (updatedBlog) => {
+      queryClient.invalidateQueries({ queryKey: ["blogs"] });
+      notificationDispatch({
+        type: "SET_NOTIFICATION",
+        payload: {
+          message: `You liked "${updatedBlog.title}"`,
+          type: "success",
+        },
+      });
+      setTimeout(
+        () => notificationDispatch({ type: "CLEAR_NOTIFICATION" }),
+        4000,
+      );
+    },
+    onError: () => {
+      notificationDispatch({
+        type: "SET_NOTIFICATION",
+        payload: { message: "Failed to like blog", type: "error" },
+      });
+      setTimeout(
+        () => notificationDispatch({ type: "CLEAR_NOTIFICATION" }),
+        4000,
+      );
+    },
+  });
+
+  const deleteBlogMutation = useMutation({
+    mutationFn: deleteBlog,
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["blogs"] });
+      notificationDispatch({
+        type: "SET_NOTIFICATION",
+        payload: { message: "Blog deleted successfully", type: "success" },
+      });
+      setTimeout(
+        () => notificationDispatch({ type: "CLEAR_NOTIFICATION" }),
+        4000,
+      );
+      window.location.href = "/";
+    },
+    onError: () => {
+      notificationDispatch({
+        type: "SET_NOTIFICATION",
+        payload: { message: "Failed to delete blog", type: "error" },
+      });
+      setTimeout(
+        () => notificationDispatch({ type: "CLEAR_NOTIFICATION" }),
+        4000,
+      );
+    },
+  });
+
+  if (result.isLoading) {
+    return <div>loading...</div>;
+  }
+
+  if (result.error) {
+    return <div>blog service not available due to problems in server</div>;
+  }
+
+  const blogs = result.data;
+  const blog = blogs.find((b) => b.id === id);
+
+  if (!blog) {
+    return null;
+  }
+
+  const isOwner = user && blog.user && blog.user.username === user.username;
+
+  const handleLike = () => {
+    const updatedBlog = {
+      ...blog,
+      likes: blog.likes + 1,
+      user: blog.user.id,
+    };
+    likeBlogMutation.mutate({ id: blog.id, updatedBlog });
+  };
+
+  const handleDelete = () => {
+    if (window.confirm(`Remove blog ${blog.title} by ${blog.author}?`)) {
+      deleteBlogMutation.mutate(blog.id);
+    }
+  };
+
+  const blogStyle = {
+    margintop: 10,
+    paddingTop: 10,
+    paddingLeft: 2,
+    borderWidth: 1,
+    marginBottom: 5,
+  };
+
+  return (
+    <div style={blogStyle}>
+      <h2>{blog.title}</h2>
+      <div>
+        <a href={blog.url} target="_blank" rel="noopener noreferrer">
+          {blog.url}
+        </a>
+      </div>
+      <div>
+        {blog.likes} likes <button onClick={handleLike}>like</button>
+      </div>
+      <div>added by {blog.user.name}</div>
+      {isOwner && <button onClick={handleDelete}>delete</button>}
+    </div>
+  );
+};
+
+export default BlogView;

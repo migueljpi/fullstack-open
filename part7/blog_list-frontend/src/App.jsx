@@ -16,6 +16,7 @@ import { useUserValue, useUserDispatch } from "./contexts/UserContext";
 import Users from "./components/Users";
 import { Routes, Route } from "react-router-dom";
 import User from "./components/User";
+import BlogView from "./components/BlogView";
 
 const App = () => {
   const [username, setUsername] = useState("");
@@ -229,11 +230,10 @@ const App = () => {
 
   return (
     <div>
+      <h1>blogs</h1>
       <NotificationMessage />
-      <p>
-        {user.name} logged in <button onClick={handleLogout}>logout</button>
-      </p>
-
+      <p>{user.name} logged in</p>
+      <button onClick={handleLogout}>logout</button>
       <Routes>
         <Route
           path="/"
@@ -257,19 +257,14 @@ const App = () => {
                 .slice()
                 .sort((a, b) => b.likes - a.likes)
                 .map((blog) => (
-                  <Blog
-                    key={blog.id}
-                    blog={blog}
-                    handleLike={handleLike}
-                    handleDelete={handleDelete}
-                    user={user}
-                  />
+                  <Blog key={blog.id} blog={blog} />
                 ))}
             </div>
           }
         />
         <Route path="/users" element={<Users />} />
         <Route path="/users/:id" element={<User />} />
+        <Route path="/blogs/:id" element={<BlogView />} />
       </Routes>
     </div>
   );

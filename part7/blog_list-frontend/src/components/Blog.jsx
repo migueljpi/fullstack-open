@@ -1,9 +1,7 @@
-import { useState } from "react";
 import PropTypes from "prop-types";
+import { Link } from "react-router-dom";
 
-const Blog = ({ blog, handleLike, user, handleDelete }) => {
-  const [showDetails, setShowDetails] = useState(false);
-
+const Blog = ({ blog }) => {
   const blogStyle = {
     paddingTop: 10,
     paddingLeft: 2,
@@ -12,36 +10,16 @@ const Blog = ({ blog, handleLike, user, handleDelete }) => {
     marginBottom: 5,
   };
 
-  const isOwner = user && blog.user && blog.user.username === user.username;
-
   return (
     <div style={blogStyle} className="blog">
       <div>
-        <span>
+        <Link to={`/blogs/${blog.id}`}>
           {blog.title} - {blog.author}
-          <button onClick={() => setShowDetails(!showDetails)}>
-            {showDetails ? "hide" : "view"}
-          </button>
-        </span>
+        </Link>
       </div>
-      {showDetails ? (
-        <div className="blogDetails">
-          <div>Title: {blog.title}</div>
-          <div>URL: {blog.url}</div>
-          <div>
-            Likes: {blog.likes}{" "}
-            <button onClick={() => handleLike(blog)}>like</button>
-          </div>
-          <div>Author: {blog.author}</div>
-          {isOwner ? (
-            <button onClick={() => handleDelete(blog)}>delete</button>
-          ) : null}
-        </div>
-      ) : null}
     </div>
   );
 };
-// commit 5.9: Blog List Frontend, step 9
 
 Blog.propTypes = {
   blog: PropTypes.object.isRequired,
