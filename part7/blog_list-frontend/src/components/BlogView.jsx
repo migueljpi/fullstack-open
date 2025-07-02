@@ -3,8 +3,11 @@ import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { getBlogs, updateBlog, deleteBlog } from "../services/blogs";
 import { useUserValue } from "../contexts/UserContext";
 import { useNotificationDispatch } from "../contexts/NotificationContext";
+import { useState } from "react";
+import { addComment } from "../services/blogs";
 
 const BlogView = () => {
+  const [comment, setComment] = useState("");
   const { id } = useParams();
   const user = useUserValue();
   const notificationDispatch = useNotificationDispatch();
@@ -69,6 +72,39 @@ const BlogView = () => {
     },
   });
 
+  const addCommentMutation = useMutation({
+    mutationFn: ({ id, comment }) => addComment(id, comment),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["blogs"] });
+      setComment("");
+      notificationDispatch({
+        type: "SET_NOTIFICATION",
+        payload: { message: "Comment added successfully", type: "success" },
+      });
+      setTimeout(
+        () => notificationDispatch({ type: "CLEAR_NOTIFICATION" }),
+        4000,
+      );
+    },
+    onError: () => {
+      notificationDispatch({
+        type: "SET_NOTIFICATION",
+        payload: { message: "Failed to add comment", type: "error" },
+      });
+      setTimeout(
+        () => notificationDispatch({ type: "CLEAR_NOTIFICATION" }),
+        4000,
+      );
+    },
+  });
+
+  const handleAddComment = (event) => {
+    event.preventDefault();
+    if (comment.trim()) {
+      addCommentMutation.mutate({ id: blog.id, comment });
+    }
+  };
+
   if (result.isLoading) {
     return <div>loading...</div>;
   }
@@ -125,6 +161,15 @@ const BlogView = () => {
       <div>added by {blog.user.name}</div>
       {isOwner && <button onClick={handleDelete}>delete</button>}
       <h3>Comments</h3>
+      <form onSubmit={handleAddComment}>
+        <input
+          type="text"
+          value={comment}
+          onChange={({ target }) => setComment(target.value)}
+          placeholder="Add a comment..."
+        />
+        <button type="submit">add comment</button>
+      </form>
       {blog.comments && blog.comments.length > 0 ? (
         <ul>
           {blog.comments.map((comment, index) => (

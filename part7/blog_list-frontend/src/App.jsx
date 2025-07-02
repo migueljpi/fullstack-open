@@ -54,59 +54,6 @@ const App = () => {
     },
   });
 
-  const likeBlogMutation = useMutation({
-    mutationFn: ({ id, updatedBlog }) => updateBlog(id, updatedBlog),
-    onSuccess: (updatedBlog) => {
-      queryClient.invalidateQueries({ queryKey: ["blogs"] });
-      notificationDispatch({
-        type: "SET_NOTIFICATION",
-        payload: {
-          message: `You liked "${updatedBlog.title}"`,
-          type: "success",
-        },
-      });
-      setTimeout(
-        () => notificationDispatch({ type: "CLEAR_NOTIFICATION" }),
-        4000,
-      );
-    },
-    onError: () => {
-      notificationDispatch({
-        type: "SET_NOTIFICATION",
-        payload: { message: "Failed to like blog", type: "error" },
-      });
-      setTimeout(
-        () => notificationDispatch({ type: "CLEAR_NOTIFICATION" }),
-        4000,
-      );
-    },
-  });
-
-  const deleteBlogMutation = useMutation({
-    mutationFn: deleteBlog,
-    onSuccess: (_, deletedBlogId) => {
-      queryClient.invalidateQueries({ queryKey: ["blogs"] });
-      notificationDispatch({
-        type: "SET_NOTIFICATION",
-        payload: { message: "Blog deleted successfully", type: "success" },
-      });
-      setTimeout(
-        () => notificationDispatch({ type: "CLEAR_NOTIFICATION" }),
-        4000,
-      );
-    },
-    onError: () => {
-      notificationDispatch({
-        type: "SET_NOTIFICATION",
-        payload: { message: "Failed to delete blog", type: "error" },
-      });
-      setTimeout(
-        () => notificationDispatch({ type: "CLEAR_NOTIFICATION" }),
-        4000,
-      );
-    },
-  });
-
   useEffect(() => {
     const loggedUserJSON = window.localStorage.getItem("loggedBlogappUser");
     if (loggedUserJSON) {
@@ -203,31 +150,6 @@ const App = () => {
       <button type="submit">login</button>
     </form>
   );
-
-  const handleLike = (blog) => {
-    const updatedBlog = {
-      ...blog,
-      user: blog.user.id || blog.user,
-      likes: blog.likes + 1,
-    };
-    likeBlogMutation.mutate({ id: blog.id, updatedBlog });
-  };
-
-  const handleDelete = (blog) => {
-    if (window.confirm(`Remove blog "${blog.title}" by ${blog.author}?`)) {
-      deleteBlogMutation.mutate(blog.id);
-    }
-  };
-
-  if (user === null) {
-    return (
-      <div>
-        <h2>Log in to application</h2>
-        <NotificationMessage />
-        {loginForm()}
-      </div>
-    );
-  }
 
   return (
     <div>
