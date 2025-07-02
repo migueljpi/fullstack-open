@@ -231,9 +231,9 @@ const App = () => {
 
   return (
     <div>
+      <Navigation user={user} handleLogout={handleLogout} />
       <h1>Blog app</h1>
       <NotificationMessage />
-      <Navigation user={user} handleLogout={handleLogout} />
       <Routes>
         <Route
           path="/"

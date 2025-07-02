@@ -111,7 +111,9 @@ const BlogView = () => {
 
   return (
     <div style={blogStyle}>
-      <h2>{blog.title}</h2>
+      <h2>
+        {blog.title} by {blog.author}
+      </h2>
       <div>
         <a href={blog.url} target="_blank" rel="noopener noreferrer">
           {blog.url}
@@ -122,6 +124,16 @@ const BlogView = () => {
       </div>
       <div>added by {blog.user.name}</div>
       {isOwner && <button onClick={handleDelete}>delete</button>}
+      <h3>Comments</h3>
+      {blog.comments && blog.comments.length > 0 ? (
+        <ul>
+          {blog.comments.map((comment, index) => (
+            <li key={index}>{comment}</li>
+          ))}
+        </ul>
+      ) : (
+        <p>No comments yet</p>
+      )}
     </div>
   );
 };
