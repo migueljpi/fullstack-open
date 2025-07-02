@@ -18,6 +18,7 @@ import { Routes, Route } from "react-router-dom";
 import User from "./components/User";
 import BlogView from "./components/BlogView";
 import Navigation from "./components/Navigation";
+import { Form, Button } from "react-bootstrap";
 
 const App = () => {
   const [username, setUsername] = useState("");
@@ -126,33 +127,45 @@ const App = () => {
   };
 
   const loginForm = () => (
-    <form onSubmit={handleLogin}>
-      <div>
-        username
-        <input
+    <Form onSubmit={handleLogin}>
+      <Form.Group className="mb-3">
+        <Form.Label>username:</Form.Label>
+        <Form.Control
           data-testid="username"
           type="text"
           value={username}
           name="Username"
           onChange={({ target }) => setUsername(target.value)}
         />
-      </div>
-      <div>
-        password
-        <input
+      </Form.Group>
+      <Form.Group className="mb-3">
+        <Form.Label>password:</Form.Label>
+        <Form.Control
           data-testid="password"
           type="password"
           value={password}
           name="Password"
           onChange={({ target }) => setPassword(target.value)}
         />
-      </div>
-      <button type="submit">login</button>
-    </form>
+      </Form.Group>
+      <Button variant="primary" type="submit">
+        login
+      </Button>
+    </Form>
   );
 
+  if (user === null) {
+    return (
+      <div className="container">
+        <h2>Log in to application</h2>
+        <NotificationMessage />
+        {loginForm()}
+      </div>
+    );
+  }
+
   return (
-    <div>
+    <div className="container">
       <Navigation user={user} handleLogout={handleLogout} />
       <h1>Blog app</h1>
       <NotificationMessage />
@@ -164,15 +177,23 @@ const App = () => {
               <h2>blogs</h2>
 
               <div style={{ display: blogFormVisible ? "none" : "" }}>
-                <button onClick={() => setBlogFormVisible(true)}>
+                <Button
+                  className="my-3"
+                  variant="primary"
+                  onClick={() => setBlogFormVisible(true)}
+                >
                   create new blog
-                </button>
+                </Button>
               </div>
               <div style={{ display: blogFormVisible ? "" : "none" }}>
                 <BlogForm createBlog={addBlog} />
-                <button onClick={() => setBlogFormVisible(false)}>
+                <Button
+                  className="mb-3"
+                  variant="secondary"
+                  onClick={() => setBlogFormVisible(false)}
+                >
                   cancel
-                </button>
+                </Button>
               </div>
 
               {blogs

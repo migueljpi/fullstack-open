@@ -5,6 +5,7 @@ import { useUserValue } from "../contexts/UserContext";
 import { useNotificationDispatch } from "../contexts/NotificationContext";
 import { useState } from "react";
 import { addComment } from "../services/blogs";
+import { Button, Form } from "react-bootstrap";
 
 const BlogView = () => {
   const [comment, setComment] = useState("");
@@ -146,7 +147,7 @@ const BlogView = () => {
   };
 
   return (
-    <div style={blogStyle}>
+    <div className="mt-3">
       <h2>
         {blog.title} by {blog.author}
       </h2>
@@ -155,21 +156,42 @@ const BlogView = () => {
           {blog.url}
         </a>
       </div>
-      <div>
-        {blog.likes} likes <button onClick={handleLike}>like</button>
+      <div className="my-2">
+        {blog.likes} likes{" "}
+        <Button variant="primary" size="sm" onClick={handleLike}>
+          like
+        </Button>
       </div>
       <div>added by {blog.user.name}</div>
-      {isOwner && <button onClick={handleDelete}>delete</button>}
-      <h3>Comments</h3>
-      <form onSubmit={handleAddComment}>
-        <input
-          type="text"
-          value={comment}
-          onChange={({ target }) => setComment(target.value)}
-          placeholder="Add a comment..."
-        />
-        <button type="submit">add comment</button>
-      </form>
+      {isOwner && (
+        <Button
+          variant="danger"
+          size="sm"
+          onClick={handleDelete}
+          className="mt-2"
+        >
+          delete
+        </Button>
+      )}
+      <h3 className="mt-4">Comments</h3>
+      <Form onSubmit={handleAddComment} className="mb-3">
+        <Form.Group>
+          <Form.Control
+            type="text"
+            value={comment}
+            onChange={({ target }) => setComment(target.value)}
+            placeholder="Add a comment..."
+          />
+        </Form.Group>
+        <Button
+          variant="outline-primary"
+          size="sm"
+          type="submit"
+          className="mt-2"
+        >
+          add comment
+        </Button>
+      </Form>
       {blog.comments && blog.comments.length > 0 ? (
         <ul>
           {blog.comments.map((comment, index) => (
