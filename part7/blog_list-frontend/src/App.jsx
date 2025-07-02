@@ -15,6 +15,7 @@ import {
 import { useUserValue, useUserDispatch } from "./contexts/UserContext";
 import Users from "./components/Users";
 import { Routes, Route } from "react-router-dom";
+import User from "./components/User";
 
 const App = () => {
   const [username, setUsername] = useState("");
@@ -268,6 +269,7 @@ const App = () => {
           }
         />
         <Route path="/users" element={<Users />} />
+        <Route path="/users/:id" element={<User />} />
       </Routes>
     </div>
   );
