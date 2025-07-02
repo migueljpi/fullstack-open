@@ -1,0 +1,9 @@
+.nav-items {
+  color: white;
+  text-decoration: none;
+  transition: color 0.3s ease;
+}
+
+.nav-items:hover {
+  color: #ff0707 !important;
+}

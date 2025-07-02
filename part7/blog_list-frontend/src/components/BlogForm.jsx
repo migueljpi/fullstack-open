@@ -51,7 +51,7 @@ const BlogForm = ({ createBlog }) => {
         />
       </Form.Group>
       <Button variant="primary" type="submit" className="mb-3">
-        save
+        Save
       </Button>
     </Form>
   );

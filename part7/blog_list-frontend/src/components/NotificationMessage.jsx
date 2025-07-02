@@ -10,7 +10,15 @@ const NotificationMessage = () => {
 
   const variant = type === "success" ? "success" : "danger";
 
-  return <Alert variant={variant}>{message}</Alert>;
+  return (
+    <Alert
+      variant={variant}
+      className="position-fixed m-3 shadow"
+      style={{ zIndex: 10, minWidth: "300px", top: "70px", right: "85px" }}
+    >
+      {message}
+    </Alert>
+  );
 };
 
 export default NotificationMessage;

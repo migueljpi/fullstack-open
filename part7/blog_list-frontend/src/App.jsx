@@ -1,4 +1,5 @@
 import { useState, useEffect } from "react";
+import "./App.css";
 import Blog from "./components/Blog";
 import loginService from "./services/login";
 import NotificationMessage from "./components/NotificationMessage";
@@ -129,7 +130,7 @@ const App = () => {
   const loginForm = () => (
     <Form onSubmit={handleLogin}>
       <Form.Group className="mb-3">
-        <Form.Label>username:</Form.Label>
+        <Form.Label>Username:</Form.Label>
         <Form.Control
           data-testid="username"
           type="text"
@@ -139,7 +140,7 @@ const App = () => {
         />
       </Form.Group>
       <Form.Group className="mb-3">
-        <Form.Label>password:</Form.Label>
+        <Form.Label>Password:</Form.Label>
         <Form.Control
           data-testid="password"
           type="password"
@@ -149,7 +150,7 @@ const App = () => {
         />
       </Form.Group>
       <Button variant="primary" type="submit">
-        login
+        Login
       </Button>
     </Form>
   );
@@ -157,7 +158,7 @@ const App = () => {
   if (user === null) {
     return (
       <div className="container">
-        <h2>Log in to application</h2>
+        <h2 className="my-5 text-center">Log in to application</h2>
         <NotificationMessage />
         {loginForm()}
       </div>
@@ -165,50 +166,52 @@ const App = () => {
   }
 
   return (
-    <div className="container">
+    <div>
       <Navigation user={user} handleLogout={handleLogout} />
-      <h1>Blog app</h1>
-      <NotificationMessage />
-      <Routes>
-        <Route
-          path="/"
-          element={
-            <div>
-              <h2>blogs</h2>
+      <div className="container">
+        <h1 className="my-5 text-center">Blog app</h1>
+        <NotificationMessage />
+        <Routes>
+          <Route
+            path="/"
+            element={
+              <div>
+                <h2 className="mb-4 text-center">Blogs</h2>
 
-              <div style={{ display: blogFormVisible ? "none" : "" }}>
-                <Button
-                  className="my-3"
-                  variant="primary"
-                  onClick={() => setBlogFormVisible(true)}
-                >
-                  create new blog
-                </Button>
-              </div>
-              <div style={{ display: blogFormVisible ? "" : "none" }}>
-                <BlogForm createBlog={addBlog} />
-                <Button
-                  className="mb-3"
-                  variant="secondary"
-                  onClick={() => setBlogFormVisible(false)}
-                >
-                  cancel
-                </Button>
-              </div>
+                {blogs
+                  .slice()
+                  .sort((a, b) => b.likes - a.likes)
+                  .map((blog) => (
+                    <Blog key={blog.id} blog={blog} />
+                  ))}
 
-              {blogs
-                .slice()
-                .sort((a, b) => b.likes - a.likes)
-                .map((blog) => (
-                  <Blog key={blog.id} blog={blog} />
-                ))}
-            </div>
-          }
-        />
-        <Route path="/users" element={<Users />} />
-        <Route path="/users/:id" element={<User />} />
-        <Route path="/blogs/:id" element={<BlogView />} />
-      </Routes>
+                <div style={{ display: blogFormVisible ? "none" : "" }}>
+                  <Button
+                    className="my-3"
+                    variant="primary"
+                    onClick={() => setBlogFormVisible(true)}
+                  >
+                    Create new blog
+                  </Button>
+                </div>
+                <div style={{ display: blogFormVisible ? "" : "none" }}>
+                  <BlogForm createBlog={addBlog} />
+                  <Button
+                    className="mb-3"
+                    variant="secondary"
+                    onClick={() => setBlogFormVisible(false)}
+                  >
+                    Cancel
+                  </Button>
+                </div>
+              </div>
+            }
+          />
+          <Route path="/users" element={<Users />} />
+          <Route path="/users/:id" element={<User />} />
+          <Route path="/blogs/:id" element={<BlogView />} />
+        </Routes>
+      </div>
     </div>
   );
 };

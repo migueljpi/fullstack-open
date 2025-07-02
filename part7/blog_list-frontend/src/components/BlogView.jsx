@@ -148,31 +148,25 @@ const BlogView = () => {
 
   return (
     <div className="mt-3">
-      <h2>
-        {blog.title} by {blog.author}
-      </h2>
+      <h2>{blog.title}</h2>
+      <h4>
+        by <em>{blog.author}</em>
+      </h4>
       <div>
-        <a href={blog.url} target="_blank" rel="noopener noreferrer">
-          {blog.url}
-        </a>
+        <p>
+          Here:{" "}
+          <a href={blog.url} target="_blank" rel="noopener noreferrer">
+            {blog.url}
+          </a>
+        </p>
       </div>
       <div className="my-2">
         {blog.likes} likes{" "}
         <Button variant="primary" size="sm" onClick={handleLike}>
-          like
+          Like
         </Button>
       </div>
-      <div>added by {blog.user.name}</div>
-      {isOwner && (
-        <Button
-          variant="danger"
-          size="sm"
-          onClick={handleDelete}
-          className="mt-2"
-        >
-          delete
-        </Button>
-      )}
+      <div>Added by {blog.user.name}</div>
       <h3 className="mt-4">Comments</h3>
       <Form onSubmit={handleAddComment} className="mb-3">
         <Form.Group>
@@ -187,9 +181,9 @@ const BlogView = () => {
           variant="outline-primary"
           size="sm"
           type="submit"
-          className="mt-2"
+          className="my-3"
         >
-          add comment
+          Add comment
         </Button>
       </Form>
       {blog.comments && blog.comments.length > 0 ? (
@@ -200,6 +194,16 @@ const BlogView = () => {
         </ul>
       ) : (
         <p>No comments yet</p>
+      )}
+      {isOwner && (
+        <Button
+          variant="danger"
+          size="sm"
+          onClick={handleDelete}
+          className="mt-2"
+        >
+          Delete
+        </Button>
       )}
     </div>
   );
