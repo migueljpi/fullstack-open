@@ -13,6 +13,8 @@ import {
   deleteBlog,
 } from "./services/blogs";
 import { useUserValue, useUserDispatch } from "./contexts/UserContext";
+import Users from "./components/Users";
+import { Routes, Route } from "react-router-dom";
 
 const App = () => {
   const [username, setUsername] = useState("");
@@ -20,6 +22,7 @@ const App = () => {
   const user = useUserValue();
   const userDispatch = useUserDispatch();
   const [blogFormVisible, setBlogFormVisible] = useState(false);
+  const [view, setView] = useState("blogs");
 
   const notificationDispatch = useNotificationDispatch();
   const queryClient = useQueryClient();
@@ -225,34 +228,47 @@ const App = () => {
 
   return (
     <div>
-      <h2>blogs</h2>
       <NotificationMessage />
       <p>
         {user.name} logged in <button onClick={handleLogout}>logout</button>
       </p>
 
-      <div style={{ display: blogFormVisible ? "none" : "" }}>
-        <button onClick={() => setBlogFormVisible(true)}>
-          create new blog
-        </button>
-      </div>
-      <div style={{ display: blogFormVisible ? "" : "none" }}>
-        <BlogForm createBlog={addBlog} />
-        <button onClick={() => setBlogFormVisible(false)}>cancel</button>
-      </div>
+      <Routes>
+        <Route
+          path="/"
+          element={
+            <div>
+              <h2>blogs</h2>
 
-      {blogs
-        .slice()
-        .sort((a, b) => b.likes - a.likes)
-        .map((blog) => (
-          <Blog
-            key={blog.id}
-            blog={blog}
-            handleLike={handleLike}
-            handleDelete={handleDelete}
-            user={user}
-          />
-        ))}
+              <div style={{ display: blogFormVisible ? "none" : "" }}>
+                <button onClick={() => setBlogFormVisible(true)}>
+                  create new blog
+                </button>
+              </div>
+              <div style={{ display: blogFormVisible ? "" : "none" }}>
+                <BlogForm createBlog={addBlog} />
+                <button onClick={() => setBlogFormVisible(false)}>
+                  cancel
+                </button>
+              </div>
+
+              {blogs
+                .slice()
+                .sort((a, b) => b.likes - a.likes)
+                .map((blog) => (
+                  <Blog
+                    key={blog.id}
+                    blog={blog}
+                    handleLike={handleLike}
+                    handleDelete={handleDelete}
+                    user={user}
+                  />
+                ))}
+            </div>
+          }
+        />
+        <Route path="/users" element={<Users />} />
+      </Routes>
     </div>
   );
 };
